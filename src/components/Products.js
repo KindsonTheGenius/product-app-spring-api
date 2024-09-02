@@ -16,13 +16,15 @@ import EditIcon from '@mui/icons-material/Edit'
 
 export default function Products() {
 
+  const [filterText, setFilterText] = useState("")
+
   const [page, setPage] = useState(0);  // Current page index
   const [rowsPerPage, setRowsPerPage] = useState(5);  // Number of rows per page
 
   const [open, setOpen] = useState(false)
   const [openEdit, setOpenEdit] = useState(false)
 
-  const [products, setProducts] = useState(null)  
+  const [products, setProducts] = useState([])  
 
   const [deleteId, setDeleteId] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -43,6 +45,7 @@ export default function Products() {
     acquisitionDate: '',
     price: ''
   })
+
 
   const handleClickOpenEdit = (product) => {
     setEditProduct(product)
@@ -126,6 +129,17 @@ export default function Products() {
     }
   }
 
+  const handleFilterChange = (event) => {
+    setFilterText(event.target.value)
+    setPage(0)
+  }
+
+  const filteredProducts  = products.filter( product => 
+    product.name.toLowerCase().includes(filterText.toLocaleLowerCase()) ||
+    product.description.toLowerCase().includes(filterText.toLocaleLowerCase()) ||
+    product.brand.toLowerCase().includes(filterText.toLocaleLowerCase())
+  );
+
   useEffect(() => {
     axios.get('http://localhost:8080/products').then(response => {
       console.log('here ...') 
@@ -160,6 +174,19 @@ const handleChangeRowsPerPage = (event) => {
     <Box display="flex" justifyContent="flex-start">
         <Button variant='contained' onClick={handleClickOpen}> Add New</Button>
     </Box>
+
+    <Box display="flex" justifyContent="flex-end" >
+      <TextField
+        width= "40%"
+        label="Search Products"
+        variant="outlined"
+        value={filterText}
+        onChange={handleFilterChange}
+      >
+
+      </TextField>
+    </Box>
+
     <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -173,7 +200,7 @@ const handleChangeRowsPerPage = (event) => {
           </TableRow>
         </TableHead>
         <TableBody>
-            { products !== null? products.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((product, index) => (
+            { filteredProducts !== null? filteredProducts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((product, index) => (
             <TableRow
             key={product.id}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
