@@ -1,4 +1,4 @@
-INSERT INTO productdb.product (id, name, description, brand, acquisition_date, price) VALUES
+INSERT INTO product (id, name, description, brand, acquisition_date, price) VALUES
 (1, 'UltraSoft Pillow', 'A luxurious pillow made with the finest down feathers.', 'ComfortCo', '2022-06-15', 49.99),
 (2, 'EcoSmart LED Bulb', 'An energy-saving LED bulb with a lifespan of 25,000 hours.', 'GreenTech', '2023-03-10', 7.49),
 (3, 'ProGaming Mouse', 'Ergonomic gaming mouse with customizable RGB lighting.', 'GamerPro', '2023-01-22', 59.99),
