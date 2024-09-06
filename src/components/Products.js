@@ -1,7 +1,9 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import {Paper, Box, 
-    IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField} 
+    IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+    Snackbar,
+    Alert} 
     from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,6 +18,10 @@ import EditIcon from '@mui/icons-material/Edit'
 
 export default function Products() {
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState("")
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success')
+
   const [filterText, setFilterText] = useState("")
 
   const [page, setPage] = useState(0);  // Current page index
@@ -29,21 +35,17 @@ export default function Products() {
   const [deleteId, setDeleteId] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [newProduct, setNewProduct] = useState({
-    id: '',
-    name: '',
-    description: '',
-    brand: '',
-    acquisitionDate: '',
-    price: ''
+    title: '',
+    summary: '',
+    content: '',
+    created_at: new Date().toISOString()  // Set current datetime
   })
 
   const [editProduct, setEditProduct] = useState({
-    id: null,
-    name: '',
-    description: '',
-    brand: '',
-    acquisitionDate: '',
-    price: ''
+    title: '',
+    summary: '',
+    content: '',
+    created_at: new Date().toISOString()  // Set current datetime
   })
 
 
@@ -82,49 +84,67 @@ export default function Products() {
     setOpenEdit(false)
   }
 
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false)
+  }
+
   const handleDelete = async (id)  => {
+     setSnackbarOpen(true)
     try {
-        await axios.delete(`http://localhost:8081/product/${id}`);
+        await axios.delete(`http://localhost:8080/product/${id}`);
         setProducts(products.filter(product => product.id !== id));
+
+        setSnackbarMessage("Product was deleted successfully!")
+        setSnackbarSeverity("success")
+
         handleConfirmClose()
     } catch (error) {
         console.log('Error occured deleting the product: ', error);
-        alert('There was an error deleting the prduct! Please try again.');
+        setSnackbarMessage("An error occured trying to delete a product.")
+        setSnackbarSeverity("warning")
     }
   };
 
   const handleEditProduct = async () => {
+    setSnackbarOpen(true)
     try {
-        const response = await axios.put(`http://localhost:8081/product/${editProduct.id}`, {
+        const response = await axios.put(`http://localhost:8080/product/${editProduct.id}`, {
             ...editProduct,
-            price: parseFloat(editProduct.price),
+            updatedAt: new Date().toISOString(),  // Set current datetime
         });
         setProducts(products.map(product => 
             product.id === editProduct.id ? response.data : product
         ));
+        setSnackbarMessage("Product was updated successfully!")
+        setSnackbarSeverity("success")
         handleCloseEdit();
     } catch (error) {
-        console.log('Error occured updating the product', error)
-        alert('There was an error updating the product! Please try again');
+       setSnackbarMessage("There was an error updating the product! Please try again")
+       setSnackbarSeverity("warning")
+       console.log('Error occured updating the product', error)
     }
   }
 
   const handleAddProduct = async () => {
+    setSnackbarOpen(true)
     try {
-        const response = await axios.post('http://localhost:8081/products', {
+        const response = await axios.post('http://localhost:8080/products', {
             ...newProduct,
-            price: parseFloat(newProduct.price)
+            createdAt: new Date().toISOString(),  // Set current datetime
         });
         setProducts([...products, response.data])
         setNewProduct({
-            name: '',
-            description: '',
-            brand: '',
-            acquisitionDate: '',
-            price: '',
+            title: '',
+            summary: '',
+            content: '',
+            createdAt: new Date().toISOString()
           });
+          setSnackbarMessage("Product was added successfully!")
+          setSnackbarSeverity("success")
           handleClose();
     }catch(error){
+        setSnackbarMessage("There was an error adding a product! Please try again")
+        setSnackbarSeverity("warning")
         console.log('There was an error adding the product!', error)
     }
   }
@@ -135,16 +155,14 @@ export default function Products() {
   }
 
   const filteredProducts  = products.filter( product => 
-    product.name.toLowerCase().includes(filterText.toLocaleLowerCase()) ||
-    product.description.toLowerCase().includes(filterText.toLocaleLowerCase()) ||
-    product.brand.toLowerCase().includes(filterText.toLocaleLowerCase())
+    product.title.toLowerCase().includes(filterText.toLocaleLowerCase()) ||
+    product.summary.toLowerCase().includes(filterText.toLocaleLowerCase()) 
   );
 
   useEffect(() => {
     axios.get('http://localhost:8080/products').then(response => {
       console.log('here ...') 
       setProducts(response.data)
-        console.log(response.data)
     }).catch((error) => {
       console.log("There was an error fetching the products", error)
     })
@@ -160,7 +178,6 @@ const handleChangeRowsPerPage = (event) => {
   setRowsPerPage(parseInt(event.target.value, 10));
   setPage(0);  // Reset the table to the first page whenever rows per page changes
 };
-
 
   return (
     <Box
@@ -190,13 +207,12 @@ const handleChangeRowsPerPage = (event) => {
     <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Description</TableCell>
-            <TableCell align="right">Brand</TableCell>
-            <TableCell align="right">Acquisition Date</TableCell>
-            <TableCell align="right">Price</TableCell>
-            <TableCell align='right'>Actions</TableCell>
+          <TableCell scope="col">#</TableCell>
+          <TableCell scope="col">Product Name</TableCell>
+          <TableCell scope="col">Description</TableCell>
+          <TableCell scope="col">Category</TableCell>
+          <TableCell scope="col">Date Added</TableCell>
+          <TableCell scope="col"></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -205,13 +221,12 @@ const handleChangeRowsPerPage = (event) => {
             key={product.id}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell align="right">{product.id}</TableCell>
-            <TableCell align="right">{product.name}</TableCell>
-            <TableCell align="right">{product.description}</TableCell>
-            <TableCell align="right">{product.brand}</TableCell>
-            <TableCell align="right">{product.acquisitionDate}</TableCell>
-            <TableCell align="right">{product.price}</TableCell>
-            <TableCell align='center'>
+            <TableCell scope="row">{page * rowsPerPage + index + 1}</TableCell>
+            <TableCell>{product.title}</TableCell>
+            <TableCell>{product.summary}</TableCell>
+            <TableCell>{product.category? product.category.title:''}</TableCell>
+            <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+             <TableCell align='center'>
                 <IconButton color='secondary' onClick={() => handleConfirmOpen(product.id)}>
                     <DeleteIcon />
                 </IconButton>
@@ -263,50 +278,29 @@ const handleChangeRowsPerPage = (event) => {
         <DialogContent>
           <TextField
             margin="dense"
-            name="name"
-            label="Product Name"
+            name="title"
+            label="Product Title"
             type="text"
             fullWidth
-            value={newProduct.name}
+            value={newProduct.title}
             onChange={handleChange}
           />
           <TextField
             margin="dense"
-            name="description"
-            label="Description"
+            name="summary"
+            label="Summary"
             type="text"
             fullWidth
-            value={newProduct.description}
+            value={newProduct.sumary}
             onChange={handleChange}
           />
           <TextField
             margin="dense"
-            name="brand"
-            label="Brand"
+            name="content"
+            label="Content"
             type="text"
             fullWidth
-            value={newProduct.brand}
-            onChange={handleChange}
-          />
-          <TextField
-            margin="dense"
-            name="acquisitionDate"
-            label="Acquisition Date"
-            type="date"
-            fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={newProduct.acquisitionDate}
-            onChange={handleChange}
-          />
-          <TextField
-            margin="dense"
-            name="price"
-            label="Price"
-            type="number"
-            fullWidth
-            value={newProduct.price}
+            value={newProduct.content}
             onChange={handleChange}
           />
         </DialogContent>
@@ -326,52 +320,31 @@ const handleChangeRowsPerPage = (event) => {
         <DialogContent>
           <TextField
             margin="dense"
-            name="name"
-            label="Product Name"
+            name="title"
+            label="Product Title"
             type="text"
             fullWidth
-            value={editProduct.name}
+            value={editProduct.title}
             onChange={handleChangeEdit}
           />
           <TextField
             margin="dense"
-            name="description"
-            label="Description"
+            name="summary"
+            label="Summary"
             type="text"
             fullWidth
-            value={editProduct.description}
+            value={editProduct.summary}
             onChange={handleChangeEdit}
           />
           <TextField
             margin="dense"
-            name="brand"
-            label="Brand"
+            name="content"
+            label="Content"
             type="text"
             fullWidth
-            value={editProduct.brand}
+            value={editProduct.content}
             onChange={handleChangeEdit}
           />
-          <TextField
-            margin="dense"
-            name="acquisitionDate"
-            label="Acquisition Date"
-            type="date"
-            fullWidth
-            InputLabelProps={{
-                shrink: true,
-              }}
-              value={editProduct.acquisitionDate}
-              onChange={handleChangeEdit}
-            />
-            <TextField
-              margin="dense"
-              name="price"
-              label="Price"
-              type="number"
-              fullWidth
-              value={editProduct.price}
-              onChange={handleChangeEdit}
-            />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseEdit} color="primary">
@@ -381,9 +354,26 @@ const handleChangeRowsPerPage = (event) => {
               Update Product
             </Button>
           </DialogActions>
-        </Dialog>  
-
-    </Box>
+    </Dialog>  
+<Snackbar
+  open={snackbarOpen}
+  autoHideDuration={4000}
+  onClose={handleSnackbarClose}
+  anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+>
+<Alert
+  onClose={handleSnackbarClose}
+  severity={snackbarSeverity}
+  sx={{
+    display: 'flex',
+    alignItems: 'center',
+    minHeight: '80px'
+  }}
+>
+   {snackbarMessage}
+</Alert>
+</Snackbar>
+</Box>
   )
 
 
