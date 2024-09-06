@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import {Paper, Box, 
-    IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+    IconButton, Button, Dialog, Select, DialogTitle, DialogContent, DialogActions, TextField,
     Snackbar,
     Alert} 
     from '@mui/material'
@@ -17,6 +17,9 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 
 export default function Products() {
+  const [categories, setCategories] = useState([])
+  const [allSubCategories, setAllSubCategories] = useState([])
+  const [filteredSubCategories, setFilteredSubCategories] = useState([])
 
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
@@ -38,6 +41,8 @@ export default function Products() {
     title: '',
     summary: '',
     content: '',
+    categoryid: '',
+    subcategoryid: '',
     created_at: new Date().toISOString()  // Set current datetime
   })
 
@@ -53,7 +58,6 @@ export default function Products() {
     setEditProduct(product)
     setOpenEdit(true)
   }
-
 
   const handleChange = (e) => {
     setNewProduct({...newProduct, [e.target.name]: e.target.value});
@@ -161,12 +165,29 @@ export default function Products() {
 
   useEffect(() => {
     axios.get('http://localhost:8080/products').then(response => {
-      console.log('here ...') 
       setProducts(response.data)
     }).catch((error) => {
       console.log("There was an error fetching the products", error)
     })
   }, []);
+
+  useEffect(() => {
+    axios.get('http://localhost:8080/categories').then(response => {
+      setCategories(response.data)
+    }).catch((error) => {
+      console.log("There was an error fetching the categories", error)
+    })
+  }, []);
+
+
+  useEffect(() => {
+    axios.get('http://localhost:8080/subCategories').then(response => {
+      setAllSubCategories(response.data)
+    }).catch((error) => {
+      console.log("There was an error fetching the suCategories", error)
+    })
+  }, []);
+
 
   // Handle page change
   const handleChangePage = (event, newPage) => {
@@ -178,6 +199,29 @@ const handleChangeRowsPerPage = (event) => {
   setRowsPerPage(parseInt(event.target.value, 10));
   setPage(0);  // Reset the table to the first page whenever rows per page changes
 };
+
+const handleCategoryChange = (event) => {
+  const selectedCategoryId = event.target.value
+  setNewProduct({
+    ...newProduct,
+    categoryid: selectedCategoryId,
+    subcategoryid: ''
+  });
+
+  const filteredSubCategories = allSubCategories.filter(
+    (subCategory) => subCategory.categoryid === Number(selectedCategoryId)
+  );
+  setFilteredSubCategories(filteredSubCategories)
+}
+
+const handleSubCategoryChange = (event) => {
+  const selectedSubCategoryId = event.target.value
+  setNewProduct({
+    ...newProduct,
+    subcategoryid: selectedSubCategoryId
+  })
+}
+
 
   return (
     <Box
@@ -210,7 +254,7 @@ const handleChangeRowsPerPage = (event) => {
           <TableCell scope="col">#</TableCell>
           <TableCell scope="col">Product Name</TableCell>
           <TableCell scope="col">Description</TableCell>
-          <TableCell scope="col">Category</TableCell>
+          <TableCell scope='col'>Category</TableCell>
           <TableCell scope="col">Date Added</TableCell>
           <TableCell scope="col"></TableCell>
           </TableRow>
@@ -271,11 +315,53 @@ const handleChangeRowsPerPage = (event) => {
         </DialogActions>
       </Dialog>
 
-
        {/* Modal Dialog for Adding New Product */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add New Product</DialogTitle>
         <DialogContent>
+          <select
+            style={{
+              width: '100%',
+              padding: '8px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              marginBottom: '15px',
+              fontSize: '16px'
+            }}
+            id="categoryid"
+            onChange={handleCategoryChange}
+            value={newProduct.categoryid}
+          >
+            <option>Choose...</option>
+            {categories.filter(c => c.title != null).map(category => (
+              <option key={category.id} value={category.id} >
+                {category.title}
+              </option>
+            ))}
+          </select>
+          <select
+            id="subcategoryid"
+            onChange={handleSubCategoryChange}
+            value={newProduct.subcategoryid}
+            style={{
+              width: '100%',
+              padding: '8px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              marginBottom: '15px',
+              fontSize: '16px'
+            }}
+          >
+            <option>Choose...</option>
+            {filteredSubCategories.map(subCategory => (
+              <option
+                key={subCategory.id} 
+                value={subCategory.id}
+              >
+                {subCategory.description}
+              </option>
+            ))}
+          </select>
           <TextField
             margin="dense"
             name="title"
@@ -345,6 +431,7 @@ const handleChangeRowsPerPage = (event) => {
             value={editProduct.content}
             onChange={handleChangeEdit}
           />
+          
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseEdit} color="primary">
