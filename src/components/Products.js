@@ -15,6 +15,7 @@ import TablePagination from '@mui/material/TablePagination';
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import { Link } from 'react-router-dom';
 
 export default function Products() {
   const [categories, setCategories] = useState([])
@@ -266,18 +267,18 @@ const handleSubCategoryChange = (event) => {
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
             <TableCell scope="row">{page * rowsPerPage + index + 1}</TableCell>
-            <TableCell>{product.title}</TableCell>
+            <TableCell><Link to={`/product/${product.id}`}>{product.title}</Link></TableCell>
             <TableCell>{product.summary}</TableCell>
             <TableCell>{product.category? product.category.title:''}</TableCell>
             <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
-             <TableCell align='center'>
-                <IconButton color='secondary' onClick={() => handleConfirmOpen(product.id)}>
-                    <DeleteIcon />
-                </IconButton>
-                <IconButton color='secondary' onClick={() => handleClickOpenEdit(product)}>
-                    <EditIcon />
-                </IconButton>
-            </TableCell>
+            <TableCell align='center'>
+              <IconButton color='secondary' onClick={() => handleConfirmOpen(product.id)}>
+                  <DeleteIcon />
+              </IconButton>
+              <IconButton color='secondary' onClick={() => handleClickOpenEdit(product)}>
+                  <EditIcon />
+              </IconButton>
+          </TableCell>
           </TableRow>
             ) ): (<TableRow><TableCell>Loading... </TableCell></TableRow>)}
         </TableBody>
@@ -294,7 +295,9 @@ const handleSubCategoryChange = (event) => {
     </TableContainer>
 
       {/* Confirmation Dialog for Deletion */}
-      <Dialog open={confirmOpen} onClose={handleConfirmClose}>
+      <Dialog open={confirmOpen}
+        style={{ width: '600px', maxWidth: '600px' }} // Custom width 
+        onClose={handleConfirmClose}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           Are you sure you want to delete this product?
