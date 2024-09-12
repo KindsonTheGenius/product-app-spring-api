@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios';
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { Grid, Typography, Paper, Box, Card } from '@mui/material';
 
 const ProductDetails = ({ product }) => {
@@ -61,17 +61,13 @@ const ProductDetails = ({ product }) => {
 
 const Product = () => {
 
-    const {productId} = useParams()
+    const location = useLocation()
+    
     const [product, setProduct] = useState(null)
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/product/${productId}`).then(response => {
-          console.log(response.data)
-          setProduct(response.data)
-        }).catch((error) => {
-          console.log("There was an error fetching the products", error)
-        })
-    }, [productId]);
+      setProduct(location.state.currentProduct)
+    }, []);
 
   return (
     <div>

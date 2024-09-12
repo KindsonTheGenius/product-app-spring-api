@@ -267,7 +267,9 @@ const handleSubCategoryChange = (event) => {
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
             <TableCell scope="row">{page * rowsPerPage + index + 1}</TableCell>
-            <TableCell><Link to={`/product/${product.id}`}>{product.title}</Link></TableCell>
+
+            <TableCell><Link to={`/product`} state={{currentProduct: product}} >{product.title}</Link></TableCell>
+
             <TableCell>{product.summary}</TableCell>
             <TableCell>{product.category? product.category.title:''}</TableCell>
             <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>

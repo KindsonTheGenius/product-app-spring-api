@@ -10,8 +10,10 @@ function App() {
       <ButtonAppBar></ButtonAppBar>
       <BrowserRouter>
         <Routes>
+        <Route path='' element={<Products></Products>}></Route>
            <Route path='/products' element={<Products></Products>}></Route>
            <Route path='/product/:productId' element={<Product></Product>}></Route>
+           <Route path='/product' element={<Product></Product>}></Route>
         </Routes>
       </BrowserRouter>
     </div>
