@@ -1,5 +1,7 @@
-package com.kindsonthegenius.product_app;
+package com.kindsonthegenius.product_app.controllers;
 
+import com.kindsonthegenius.product_app.services.CategoryService;
+import com.kindsonthegenius.product_app.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories")
+    @CrossOrigin
     public List<Category> getCategories(){
         return categoryService.getAllCategories();
     }

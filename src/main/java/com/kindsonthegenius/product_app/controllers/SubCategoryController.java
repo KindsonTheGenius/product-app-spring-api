@@ -1,11 +1,12 @@
-package com.kindsonthegenius.product_app;
+package com.kindsonthegenius.product_app.controllers;
 
+import com.kindsonthegenius.product_app.model.SubCategory;
+import com.kindsonthegenius.product_app.services.SubCategoryService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3001/")
 public class SubCategoryController {
 
     private final SubCategoryService subCategoryService;
@@ -15,6 +16,7 @@ public class SubCategoryController {
     }
 
     @GetMapping("/subCategories")
+    @CrossOrigin
     public List<SubCategory> getSubCategories(){
         return subCategoryService.getAllSubCategories();
     }

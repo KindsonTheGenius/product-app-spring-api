@@ -1,9 +1,8 @@
-package com.kindsonthegenius.product_app;
+package com.kindsonthegenius.product_app.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
