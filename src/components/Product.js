@@ -60,15 +60,11 @@ const ProductDetails = ({ product }) => {
 };
 
 const Product = () => {
-
     const location = useLocation()
-    
     const [product, setProduct] = useState(null)
-
     useEffect(() => {
       setProduct(location.state.currentProduct)
     }, []);
-
   return (
     <div>
     {product ? (

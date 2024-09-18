@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import {Paper, Box, 
     IconButton, Button, Dialog, Select, DialogTitle, DialogContent, DialogActions, TextField,
     Snackbar,
-    Alert} 
+    Alert,
+    Card} 
     from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -33,9 +34,7 @@ export default function Products() {
 
   const [open, setOpen] = useState(false)
   const [openEdit, setOpenEdit] = useState(false)
-
   const [products, setProducts] = useState([])  
-
   const [deleteId, setDeleteId] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [newProduct, setNewProduct] = useState({
@@ -53,7 +52,6 @@ export default function Products() {
     content: '',
     created_at: new Date().toISOString()  // Set current datetime
   })
-
 
   const handleClickOpenEdit = (product) => {
     setEditProduct(product)
@@ -160,8 +158,8 @@ export default function Products() {
   }
 
   const filteredProducts  = products.filter( product => 
-    product.title.toLowerCase().includes(filterText.toLocaleLowerCase()) ||
-    product.summary.toLowerCase().includes(filterText.toLocaleLowerCase()) 
+    (product.title && product.title.toLowerCase().includes(filterText.toLocaleLowerCase())) ||
+    (product.summary && product.summary.toLowerCase().includes(filterText.toLocaleLowerCase())) 
   );
 
   useEffect(() => {
@@ -230,72 +228,75 @@ const handleSubCategoryChange = (event) => {
     justifyContent="center"
     alignItems="center"
     height="20%"
+    padding="2rem"
+    border="ActiveBorder"
+    fullWidth
   >
-    <TableContainer component={Paper} style={{width:'70%', margin:'4%'}}>
+    <Card sx={{ width: '80%', padding: '2rem', border: '2px solid black', borderRadius: '8px' }}>
+    <TableContainer>
+        <Box display="flex" justifyContent="flex-start">
+            <Button variant='contained' onClick={handleClickOpen}> Add New</Button>
+        </Box>
 
-    <Box display="flex" justifyContent="flex-start">
-        <Button variant='contained' onClick={handleClickOpen}> Add New</Button>
-    </Box>
-
-    <Box display="flex" justifyContent="flex-end" >
-      <TextField
-        width= "40%"
-        label="Search Products"
-        variant="outlined"
-        value={filterText}
-        onChange={handleFilterChange}
-      >
-
-      </TextField>
-    </Box>
-
-    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-          <TableCell scope="col">#</TableCell>
-          <TableCell scope="col">Product Name</TableCell>
-          <TableCell scope="col">Description</TableCell>
-          <TableCell scope='col'>Category</TableCell>
-          <TableCell scope="col">Date Added</TableCell>
-          <TableCell scope="col"></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-            { filteredProducts !== null? filteredProducts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((product, index) => (
-            <TableRow
-            key={product.id}
-            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+        <Box display="flex" justifyContent="flex-end" >
+          <TextField
+            label="Search Products"
+            variant="outlined"
+            value={filterText}
+            onChange={handleFilterChange}
           >
-            <TableCell scope="row">{page * rowsPerPage + index + 1}</TableCell>
 
-            <TableCell><Link to={`/product`} state={{currentProduct: product}} >{product.title}</Link></TableCell>
+          </TextField>
+        </Box>
+        <hr></hr>
+        <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+              <TableCell sx={{ fontWeight: 'bold' }} scope="col">#</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} scope="col">Product Name</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} scope="col">Description</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} scope='col'>Category</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} scope="col">Date Added</TableCell>
+              <TableCell scope="col"></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+                { filteredProducts !== null? filteredProducts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((product, index) => (
+                <TableRow
+                key={product.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell sx={{ fontSize: '1.1rem' }} scope="row">{page * rowsPerPage + index + 1}</TableCell>
 
-            <TableCell>{product.summary}</TableCell>
-            <TableCell>{product.category? product.category.title:''}</TableCell>
-            <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
-            <TableCell align='center'>
-              <IconButton color='secondary' onClick={() => handleConfirmOpen(product.id)}>
-                  <DeleteIcon />
-              </IconButton>
-              <IconButton color='secondary' onClick={() => handleClickOpenEdit(product)}>
-                  <EditIcon />
-              </IconButton>
-          </TableCell>
-          </TableRow>
-            ) ): (<TableRow><TableCell>Loading... </TableCell></TableRow>)}
-        </TableBody>
-      </Table>
-      <TablePagination
-        component="div"
-        count={products!= null? products.length: 0}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}  // Options for rows per page
-    />
-    </TableContainer>
+                <TableCell sx={{ fontSize: '1.1rem' }}><Link to={`/product`} state={{currentProduct: product}} >{product.title}</Link></TableCell>
 
+                <TableCell sx={{ fontSize: '1.1rem' }}>{product.summary}</TableCell>
+                <TableCell sx={{ fontSize: '1.1rem' }}>{product.category? product.category.title:''}</TableCell>
+                <TableCell sx={{ fontSize: '1.1rem' }}>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell align='center'>
+                  <IconButton color='secondary' onClick={() => handleConfirmOpen(product.id)}>
+                      <DeleteIcon />
+                  </IconButton>
+                  <IconButton color='secondary' onClick={() => handleClickOpenEdit(product)}>
+                      <EditIcon />
+                  </IconButton>
+              </TableCell>
+              </TableRow>
+                ) ): (<TableRow><TableCell>Loading... </TableCell></TableRow>)}
+            </TableBody>
+          </Table>
+          <TablePagination  sx={{ fontSize: '1.1rem' }}
+            component="div"
+            count={products!= null? products.length: 0}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}  // Options for rows per page
+        />
+      </TableContainer>
+      <hr></hr>
+    </Card>
       {/* Confirmation Dialog for Deletion */}
       <Dialog open={confirmOpen}
         style={{ width: '600px', maxWidth: '600px' }} // Custom width 
