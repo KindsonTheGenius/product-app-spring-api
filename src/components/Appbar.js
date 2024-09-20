@@ -24,7 +24,7 @@ export default function ButtonAppBar() {
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
             Products List
           </Typography>
-          <Button color="inherit">Login</Button>
+          <Button color="inherit">Logout</Button>
         </Toolbar>
       </AppBar>
     </Box>

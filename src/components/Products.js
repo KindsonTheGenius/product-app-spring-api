@@ -17,6 +17,7 @@ import TablePagination from '@mui/material/TablePagination';
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import { Link } from 'react-router-dom';
+import axiosInstance from '../axiosConfig';
 
 export default function Products() {
   const [categories, setCategories] = useState([])
@@ -163,7 +164,7 @@ export default function Products() {
   );
 
   useEffect(() => {
-    axios.get('http://localhost:8080/products').then(response => {
+    axiosInstance.get('http://localhost:8080/products').then(response => {
       setProducts(response.data)
     }).catch((error) => {
       console.log("There was an error fetching the products", error)
@@ -171,7 +172,7 @@ export default function Products() {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/categories').then(response => {
+    axiosInstance.get('http://localhost:8080/categories').then(response => {
       setCategories(response.data)
     }).catch((error) => {
       console.log("There was an error fetching the categories", error)
@@ -180,7 +181,7 @@ export default function Products() {
 
 
   useEffect(() => {
-    axios.get('http://localhost:8080/subCategories').then(response => {
+    axiosInstance.get('http://localhost:8080/subCategories').then(response => {
       setAllSubCategories(response.data)
     }).catch((error) => {
       console.log("There was an error fetching the suCategories", error)
