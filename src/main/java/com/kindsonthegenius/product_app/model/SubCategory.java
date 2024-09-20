@@ -1,15 +1,10 @@
-package com.kindsonthegenius.product_app;
+package com.kindsonthegenius.product_app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
-
-import java.util.List;
 @Entity
 @Table(name = "sub_category")
 @Data
