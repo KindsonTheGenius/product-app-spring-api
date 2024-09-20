@@ -16,7 +16,6 @@ public class SubCategoryController {
     }
 
     @GetMapping("/subCategories")
-    @CrossOrigin
     public List<SubCategory> getSubCategories(){
         return subCategoryService.getAllSubCategories();
     }

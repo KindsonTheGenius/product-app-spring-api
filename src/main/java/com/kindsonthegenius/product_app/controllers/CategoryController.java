@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3001")
 public class CategoryController {
 
     private CategoryService categoryService;
@@ -19,7 +18,6 @@ public class CategoryController {
     }
 
     @GetMapping("/categories")
-    @CrossOrigin
     public List<Category> getCategories(){
         return categoryService.getAllCategories();
     }
